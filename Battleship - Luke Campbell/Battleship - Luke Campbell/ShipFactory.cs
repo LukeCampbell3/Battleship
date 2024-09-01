@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Battleship___Luke_Campbell.Ship;
+using CsvHelper;
 
 namespace Battleship___Luke_Campbell
 {
@@ -96,7 +97,16 @@ namespace Battleship___Luke_Campbell
 
         public static Ship[] ParseShipFile(string filePath)
         {
-            
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var records = csv.GetRecord<Record>().ToList();
+                foreach (var record in records)
+                {
+
+                }
+            }
+
         }
     }
 }

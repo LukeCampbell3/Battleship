@@ -1,0 +1,6 @@
+ShipType, Start Coordinates, End Coordinates, Horizontal or Vertical
+Carrier,B2,B6,Horizontal
+Battleship,E8,H8,Horizontal
+Destroyer,I3,I5,Vertical
+Submarine,A10,C10,Vertical
+Patrol Boat,F1,G1,Horizontal
