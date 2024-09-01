@@ -6,13 +6,15 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Battleship___Luke_Campbell.Ship;
 using CsvHelper;
+using System.IO;
+using System.Globalization;
 
 namespace Battleship___Luke_Campbell
 {
     public static class ShipFactory
     {
         private static readonly Regex ShipRegex = new Regex(
-            @"^(Carrier|Battleship|Destroyer|Submarine|PatrolBoat) \((\d+),(\d+)\) (Horizontal|Vertical)",
+            @"^(Carrier|Battleship|Destroyer|Submarine|PatrolBoat) \((\d+),(\d+)\) (Horizontal|Vertical) (\d+)$",
             RegexOptions.Compiled
         );
 
@@ -97,16 +99,32 @@ namespace Battleship___Luke_Campbell
 
         public static Ship[] ParseShipFile(string filePath)
         {
+            List<Ship> ships = new List<Ship>();
+
             using (var reader = new StreamReader(filePath))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
-                var records = csv.GetRecord<Record>().ToList();
+                var records = csv.GetRecords<ShipRecord>();
+
                 foreach (var record in records)
                 {
+                    DirectionType direction = (DirectionType)Enum.Parse(typeof(DirectionType), record.Direction);
 
+                    Ship ship = record.ShipType switch
+                    {
+                        "Carrier" => new Carrier(new Coord2D(record.X, record.Y), direction),
+                        "Battleship" => new Battleship(new Coord2D(record.X, record.Y), direction),
+                        "Destroyer" => new Destroyer(new Coord2D(record.X, record.Y), direction),
+                        "Submarine" => new Submarine(new Coord2D(record.X, record.Y), direction),
+                        "PatrolBoat" => new PatrolBoat(new Coord2D(record.X, record.Y), direction),
+                        _ => throw new ArgumentException($"Invalid Ship Type: {record.ShipType}")
+                    };
+
+                    ships.Add(ship);
                 }
             }
 
+            return ships.ToArray();
         }
     }
 }
