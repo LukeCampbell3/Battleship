@@ -131,14 +131,14 @@ namespace Battleship___Luke_Campbell
 
                     if (parts.Length != 2)
                     {
-                        throw new FormatException("Invalid format. Please use the format 'x,y'.");
+                        throw new FormatException("Command not recognized. Please use the format 'x,y'.");
                     }
 
                     int x = int.Parse(parts[0]);
                     int y = int.Parse(parts[1]);
 
                     // Check if the coordinates are within the valid range
-                    if (x < 0 || x > 9 || y < 0 || y > 9)
+                    if (x < 0 || x >= 11 || y < 0 || y >= 11)
                     {
                         throw new ArgumentOutOfRangeException("Coordinates must be within the range 0-9.");
                     }

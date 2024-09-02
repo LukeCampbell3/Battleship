@@ -20,14 +20,23 @@ namespace Battleship___Luke_Campbell
 
         public static bool VerifyShipString(string description)
         {
+            // Debugging output
+            //Console.WriteLine($"Verifying: {description}");
+
             // Match the input string with the regex
             var match = ShipRegex.Match(description);
 
+            // Debugging output
+            //Console.WriteLine(match.Success ? "Regex matched" : "Regex did not match");
+
+            /*
             // If the string doesn't match the pattern, return false
             if (!match.Success)
             {
+                Console.WriteLine("Regex match failed.");
                 return false;
             }
+            */
 
             // Extract the matched groups
             string shipType = match.Groups[1].Value;
@@ -36,64 +45,78 @@ namespace Battleship___Luke_Campbell
             string direction = match.Groups[4].Value;
             int length = int.Parse(match.Groups[5].Value);
 
-            // Check if the length of the ship is less than 6
-            if (length >= 6)
+            // Debugging output
+            Console.WriteLine($"Parsed Values: Type={shipType}, x={x}, y={y}, direction={direction}, length={length}");
+
+            // Check if the ship's length is valid (ships longer than 5 should not exist)
+            if (length < 1 || length > 5)
             {
+                Console.WriteLine("Invalid length.");
                 return false;
             }
 
             // Check if the ship's position and length stay within the 10x10 grid
             if (direction == "Horizontal")
             {
-                if (x + length > 10 || x < 0 || y < 0 || y > 9)
+                if (x < 0 || x + length - 1 >= 10 || y < 0 || y >= 10)
                 {
+                    Console.WriteLine("Horizontal boundary check failed.");
                     return false;
                 }
             }
             else if (direction == "Vertical")
             {
-                if (y + length > 10 || y < 0 || x < 0 || x > 9)
+                if (y < 0 || y + length - 1 >= 10 || x < 0 || x >= 10)
                 {
+                    Console.WriteLine("Vertical boundary check failed.");
                     return false;
                 }
             }
+            else
+            {
+                Console.WriteLine("Invalid direction.");
+                return false; // Invalid direction
+            }
 
-            // If all checks passed, return true
             return true;
         }
 
         public static Ship ParseShipString(string description)
         {
+            Console.WriteLine($"Parsing ship: {description}");
+
             if (!VerifyShipString(description))
             {
                 throw new FormatException($"Failed to create a Ship...\nHere is your description: {description}. Please follow the format.");
             }
-
-            // Extract ship details using the regex
-            var match = ShipRegex.Match(description);
-
-            string shipType = match.Groups[1].Value;
-            int x = int.Parse(match.Groups[2].Value);
-            int y = int.Parse(match.Groups[3].Value);
-            string directionStr = match.Groups[4].Value;
-            DirectionType direction = (DirectionType)Enum.Parse(typeof(DirectionType), directionStr);
-            int length = int.Parse(match.Groups[5].Value);
-
-            // Create and return the appropriate ship type
-            switch (shipType)
+            else // this is for the ships that are good:
             {
-                case "Carrier":
-                    return new Carrier(new Coord2D(x, y), direction);
-                case "Battleship":
-                    return new Battleship(new Coord2D(x, y), direction);
-                case "Destroyer":
-                    return new Destroyer(new Coord2D(x, y), direction);
-                case "Submarine":
-                    return new Submarine(new Coord2D(x, y), direction);
-                case "PatrolBoat":
-                    return new PatrolBoat(new Coord2D(x, y), direction);
-                default:
-                    throw new ArgumentException($"Invalid ship type: {shipType}");
+                // Extract ship details using the regex
+                var match = ShipRegex.Match(description);
+
+                string shipType = match.Groups[1].Value;
+                int x = int.Parse(match.Groups[2].Value);
+                int y = int.Parse(match.Groups[3].Value);
+                string directionStr = match.Groups[4].Value;
+                DirectionType direction = (DirectionType)Enum.Parse(typeof(DirectionType), directionStr);
+                int length = int.Parse(match.Groups[5].Value);
+
+                // Create and return the appropriate ship type
+                switch (shipType)
+                {
+                    case "Carrier":
+                        return new Carrier(new Coord2D(x, y), direction);
+                    case "Battleship":
+                        return new Battleship(new Coord2D(x, y), direction);
+                    case "Destroyer":
+                        return new Destroyer(new Coord2D(x, y), direction);
+                    case "Submarine":
+                        return new Submarine(new Coord2D(x, y), direction);
+                    case "PatrolBoat":
+                        return new PatrolBoat(new Coord2D(x, y), direction);
+                    default:
+                        throw new ArgumentException($"Invalid ship type: {shipType}");
+                }
             }
         }
 
@@ -108,19 +131,21 @@ namespace Battleship___Luke_Campbell
 
                 foreach (var record in records)
                 {
-                    DirectionType direction = (DirectionType)Enum.Parse(typeof(DirectionType), record.Direction);
+                    // Convert ShipRecord to string format expected by ParseShipString
+                    string description = $"{record.ShipType} ({record.X},{record.Y}) {record.Direction} {record.Length}";
 
-                    Ship ship = record.ShipType switch
+                    /*
+                        Had to use ChatGPT to check how to skip .csv rows
+                        https://chatgpt.com/share/4761e68c-2084-4263-9d5f-5eeb7ff02edc
+                     */
+
+                    if (description.StartsWith("#"))
                     {
-                        "Carrier" => new Carrier(new Coord2D(record.X, record.Y), direction),
-                        "Battleship" => new Battleship(new Coord2D(record.X, record.Y), direction),
-                        "Destroyer" => new Destroyer(new Coord2D(record.X, record.Y), direction),
-                        "Submarine" => new Submarine(new Coord2D(record.X, record.Y), direction),
-                        "PatrolBoat" => new PatrolBoat(new Coord2D(record.X, record.Y), direction),
-                        _ => throw new ArgumentException($"Invalid Ship Type: {record.ShipType}")
-                    };
+                        continue;
+                    }
 
-                    ships.Add(ship);
+                    // Now parse the description string
+                    ships.Add(ParseShipString(description));
                 }
             }
 

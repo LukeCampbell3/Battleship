@@ -11,6 +11,8 @@ namespace Battleship___Luke_Campbell
             //Ship[] ships;
             List<string> descriptions = new List<string>();
 
+            //ShipFactory.TestVerifyShipString();
+
             // creates ships based on file path and non-file path inputs
             menu.ShipInit(descriptions);
 
