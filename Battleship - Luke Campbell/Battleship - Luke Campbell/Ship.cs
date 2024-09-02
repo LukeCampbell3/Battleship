@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CsvHelper;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,12 +43,19 @@ namespace Battleship___Luke_Campbell
 
         public bool CheckHit(Coord2D Point)
         {
+            if (DamagedPoints.Contains(Point))
+            {
+                Console.WriteLine("You have already chosen this coordinate...");
+                return false;
+            }
+
             for (int i = 0; i < Points.Length; i++)
             {
-                if (Point.Equals(Points[i]))
+                if (Point.Equals(Points[i])) // Check if the points are equal
                 {
-                    DamagedPoints.Add(Points[i]);
-                    return true;
+                    DamagedPoints.Add(Points[i]); // Add the damaged point to the list
+                    Points[i] = default(Coord2D);
+                    return true; // Return true since a hit was detected
                 }
             }
             return false;
@@ -54,12 +63,11 @@ namespace Battleship___Luke_Campbell
 
         public void TakeDamage(Coord2D Point)
         {
-            if(!CheckHit(Point))
+            if(CheckHit(Point))
             {
-                Console.WriteLine($"GETNAME got hit at ({Point.x}, {Point.y})");        // I need to create the GETNAME function to get the name of the ship !!!
+                Console.WriteLine($"You hit a ship at ({Point.x}, {Point.y})"); 
             }
         }
-
         public abstract string GetName();
 
         public int GetMaxHealth()
