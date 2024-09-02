@@ -48,16 +48,19 @@ namespace Battleship___Luke_Campbell
                 Console.WriteLine("You have already chosen this coordinate...");
                 return false;
             }
-
-            for (int i = 0; i < Points.Length; i++)
+            else
             {
-                if (Point.Equals(Points[i])) // Check if the points are equal
+                for (int i = 0; i < Points.Length; i++)
                 {
-                    DamagedPoints.Add(Points[i]); // Add the damaged point to the list
-                    Points[i] = default(Coord2D);
-                    return true; // Return true since a hit was detected
+                    if (Point.Equals(Points[i])) // Check if the points are equal
+                    {
+                        DamagedPoints.Add(Points[i]); // Add the damaged point to the list
+                        Points = RemovePointAtIndex(Points, i);
+                        return true; // Return true since a hit was detected
+                    }
                 }
             }
+
             return false;
         }
 
@@ -67,7 +70,12 @@ namespace Battleship___Luke_Campbell
             {
                 Console.WriteLine($"You hit a ship at ({Point.x}, {Point.y})"); 
             }
+            else
+            {
+                Console.WriteLine("You missed...");
+            }
         }
+
         public abstract string GetName();
 
         public int GetMaxHealth()
@@ -88,6 +96,19 @@ namespace Battleship___Luke_Campbell
         public string GetInfo ()
         {
             return $"{GetName()} at ({Position.x}, {Position.y}) facing {Direction} with {GetCurrentHealth()} health remaining.";
+        }
+
+        private Coord2D[] RemovePointAtIndex(Coord2D[] inputArray, int indexToRemove)
+        {
+            var tempArray = new Coord2D[inputArray.Length - 1];
+
+            // Copy all elements before the index to remove
+            Array.Copy(inputArray, 0, tempArray, 0, indexToRemove);
+
+            // Copy all elements after the index to remove
+            Array.Copy(inputArray, indexToRemove + 1, tempArray, indexToRemove, inputArray.Length - indexToRemove - 1);
+
+            return tempArray;
         }
     }
 }

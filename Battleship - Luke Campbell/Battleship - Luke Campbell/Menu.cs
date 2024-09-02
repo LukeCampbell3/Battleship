@@ -108,6 +108,7 @@ namespace Battleship___Luke_Campbell
             foreach (Ship s in ships)
             {
                 s.TakeDamage(attack);
+
                 if (s.IsDead()) // Check if the ship is dead after taking damage
                 {
                     Console.WriteLine("You have taken out a ship!");
