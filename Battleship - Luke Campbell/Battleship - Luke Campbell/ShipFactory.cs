@@ -84,7 +84,8 @@ namespace Battleship___Luke_Campbell
 
             if (!VerifyShipString(description))
             {
-                throw new FormatException($"Failed to create a Ship...\nHere is your description: {description}.\nPlease follow the format.\nOr make sure you are inside bounds...");
+                throw new FormatException($"Failed to create a Ship...\n\tHere is your description: {description}." +
+                                          $"\n\tPlease follow the format.\n\tOr make sure you are inside bounds...");
             }
             else // this is for the ships that are good:
             {

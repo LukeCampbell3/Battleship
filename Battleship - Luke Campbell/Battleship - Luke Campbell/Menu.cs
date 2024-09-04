@@ -30,7 +30,7 @@ namespace Battleship___Luke_Campbell
                 else if (fileInput.ToLower() == "n")
                 {
                     Console.WriteLine("Please input your ships in the following format\n" +
-                                      "'ship type' 'starting coord (x,y)' 'h (horizontal) / v (vertical)' 'health (5)'");
+                                      "\t'ship type' 'starting coord (x,y)' 'h (horizontal) / v (vertical)' 'health (5)'");
 
                     for (int i = 0; i < 5; i++)
                     {
@@ -78,7 +78,7 @@ namespace Battleship___Luke_Campbell
                     switch (choice)
                     {
                         case 1:
-                            Console.WriteLine("You chose ATTACK\nWhere would you like to attack? [please use (x,y) format :) ]");
+                            Console.WriteLine("You chose ATTACK\n\tWhere would you like to attack? [please use (x,y) format :) ]");
 
                             attack = GetCoordFromUser();
                             Userattack(attack, ships);
