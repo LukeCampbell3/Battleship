@@ -1,0 +1,5 @@
+# Good Data
+# WARNING: Ships missing
+Carrier, 5, h, 0, 0
+Submarine, 3, v, 5, 5
+Patrol Boat, 2, h, 7, 7

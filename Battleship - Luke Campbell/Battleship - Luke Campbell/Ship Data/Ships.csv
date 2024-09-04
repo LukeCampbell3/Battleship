@@ -1,7 +1,0 @@
-ShipType,X,Y,Direction,Length
-Carrier,1,1,Horizontal,5
-Battleship,2,2,Vertical,4
-Destroyer,3,3,Horizontal,3
-Submarine,4,4,Vertical,3
-PatrolBoat,5,5,Horizontal,2
-# Battleship,12,4,Horizontal,4

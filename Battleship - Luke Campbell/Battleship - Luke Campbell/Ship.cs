@@ -34,8 +34,8 @@ namespace Battleship___Luke_Campbell
             for (int i = 0; i < length; i++)
             {
                 points[i] = new Coord2D(
-                    position.x + (direction == DirectionType.Horizontal ? i : 0),
-                    position.y + (direction == DirectionType.Vertical ? i : 0)
+                    position.x + (direction == DirectionType.h ? i : 0),
+                    position.y + (direction == DirectionType.v ? i : 0)
                 );
             }
             return points;

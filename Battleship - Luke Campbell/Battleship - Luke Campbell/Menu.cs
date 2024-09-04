@@ -14,7 +14,7 @@ namespace Battleship___Luke_Campbell
 
         public Ship[] ShipInit(List<string> descriptions)
         {
-            while (true)
+            while (true)  // Add a loop to ensure valid input
             {
                 Console.WriteLine("Do you have a .csv of pre-made ships (Y/N)?");
                 string fileInput = Console.ReadLine();
@@ -25,25 +25,35 @@ namespace Battleship___Luke_Campbell
                     string filepath = Console.ReadLine();
 
                     ships = ShipFactory.ParseShipFile(filepath); // Assign directly to the class-level array
-
-                    return ships;
+                    return ships; // Return ships after successful CSV parsing
                 }
                 else if (fileInput.ToLower() == "n")
                 {
-                    //game logic
+                    Console.WriteLine("Please input your ships in the following format\n" +
+                                      "'ship type' 'starting coord (x,y)' 'h (horizontal) / v (vertical)' 'health (5)'");
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        string description = Console.ReadLine();
+                        descriptions.Add(description);
+                    }
+
                     foreach (string description in descriptions)
                     {
                         Ship ship = ShipFactory.ParseShipString(description);
                         ships.Append(ship);
                     }
+
+                    return ships; // Return ships after manual input
                 }
                 else
                 {
-                    Console.WriteLine("Please follow the format (Y/N)...");
-                    return null;
+                    Console.WriteLine("Invalid choice. Please select 'Y' for yes or 'N' for no.");
+                    // Loop continues, allowing the user to try again
                 }
             }
         }
+
 
         public void MainLoop()
         {

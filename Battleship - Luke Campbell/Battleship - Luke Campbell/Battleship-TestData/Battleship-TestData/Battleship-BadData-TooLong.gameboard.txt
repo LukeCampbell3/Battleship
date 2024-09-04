@@ -1,0 +1,7 @@
+# Bad Data
+# Issue: The battle ship is too long
+Carrier, 5, h, 0, 0
+Battleship, 9, v, 6, 3
+Destroyer, 3, h, 0, 2
+Submarine, 3, v, 5, 5
+Patrol Boat, 2, h, 8, 9

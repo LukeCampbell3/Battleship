@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Battleship___Luke_Campbell.Ship;
-using CsvHelper;
 using System.IO;
 using System.Globalization;
 
@@ -14,29 +13,25 @@ namespace Battleship___Luke_Campbell
     public static class ShipFactory
     {
         private static readonly Regex ShipRegex = new Regex(
-            @"^(Carrier|Battleship|Destroyer|Submarine|PatrolBoat) \((\d+),(\d+)\) (Horizontal|Vertical) (\d+)$",
+            @"^(Carrier|Battleship|Destroyer|Submarine|Patrol\sBoat)\s(\d+),(\d+)\s(h|v)\s(\d+)$",
             RegexOptions.Compiled
         );
+
 
         public static bool VerifyShipString(string description)
         {
             // Debugging output
-            //Console.WriteLine($"Verifying: {description}");
+            Console.WriteLine($"Verifying: {description}");
 
             // Match the input string with the regex
             var match = ShipRegex.Match(description);
 
-            // Debugging output
-            //Console.WriteLine(match.Success ? "Regex matched" : "Regex did not match");
-
-            /*
             // If the string doesn't match the pattern, return false
             if (!match.Success)
             {
                 Console.WriteLine("Regex match failed.");
                 return false;
             }
-            */
 
             // Extract the matched groups
             string shipType = match.Groups[1].Value;
@@ -56,7 +51,7 @@ namespace Battleship___Luke_Campbell
             }
 
             // Check if the ship's position and length stay within the 10x10 grid
-            if (direction == "Horizontal")
+            if (direction == "h")
             {
                 if (x < 0 || x + length - 1 >= 10 || y < 0 || y >= 10)
                 {
@@ -64,7 +59,7 @@ namespace Battleship___Luke_Campbell
                     return false;
                 }
             }
-            else if (direction == "Vertical")
+            else if (direction == "v")
             {
                 if (y < 0 || y + length - 1 >= 10 || x < 0 || x >= 10)
                 {
@@ -78,6 +73,8 @@ namespace Battleship___Luke_Campbell
                 return false; // Invalid direction
             }
 
+            // If all checks passed, return true
+            Console.WriteLine("Ship is valid.");
             return true;
         }
 
@@ -87,7 +84,7 @@ namespace Battleship___Luke_Campbell
 
             if (!VerifyShipString(description))
             {
-                throw new FormatException($"Failed to create a Ship...\nHere is your description: {description}. Please follow the format.");
+                throw new FormatException($"Failed to create a Ship...\nHere is your description: {description}.\nPlease follow the format.\nOr make sure you are inside bounds...");
             }
             else // this is for the ships that are good:
             {
@@ -112,7 +109,7 @@ namespace Battleship___Luke_Campbell
                         return new Destroyer(new Coord2D(x, y), direction);
                     case "Submarine":
                         return new Submarine(new Coord2D(x, y), direction);
-                    case "PatrolBoat":
+                    case "Patrol Boat":
                         return new PatrolBoat(new Coord2D(x, y), direction);
                     default:
                         throw new ArgumentException($"Invalid ship type: {shipType}");
@@ -125,27 +122,47 @@ namespace Battleship___Luke_Campbell
             List<Ship> ships = new List<Ship>();
 
             using (var reader = new StreamReader(filePath))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
-                var records = csv.GetRecords<ShipRecord>();
-
-                foreach (var record in records)
+                string line;
+                while ((line = reader.ReadLine()) != null) // Read each line from the file
                 {
-                    // Convert ShipRecord to string format expected by ParseShipString
-                    string description = $"{record.ShipType} ({record.X},{record.Y}) {record.Direction} {record.Length}";
+                    line = line.Trim(); // Remove leading/trailing whitespace
 
-                    /*
-                        Had to use ChatGPT to check how to skip .csv rows
-                        https://chatgpt.com/share/4761e68c-2084-4263-9d5f-5eeb7ff02edc
-                     */
-
-                    if (description.StartsWith("#"))
+                    // Skip empty lines or comments
+                    if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
                     {
                         continue;
                     }
 
-                    // Now parse the description string
-                    ships.Add(ParseShipString(description));
+                    try
+                    {
+                        // Split the line by comma to get the individual components
+                        var parts = line.Split(',');
+
+                        // Ensure the line has the correct number of parts
+                        if (parts.Length != 5)
+                        {
+                            throw new FormatException($"Invalid format: {line}");
+                        }
+
+                        string shipType = parts[0].Trim();
+                        int length = int.Parse(parts[1].Trim());
+                        string direction = parts[2].Trim();
+                        int x = int.Parse(parts[3].Trim());
+                        int y = int.Parse(parts[4].Trim());
+
+                        // Construct the ship description in the expected format
+                        string description = $"{shipType} {x},{y} {direction} {length}";
+
+                        // Parse and add the ship
+                        Ship ship = ParseShipString(description);
+                        ships.Add(ship);
+                    }
+                    catch (FormatException ex)
+                    {
+                        // Handle format exceptions (optional logging)
+                        Console.WriteLine($"Error parsing line: {ex.Message}");
+                    }
                 }
             }
 

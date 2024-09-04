@@ -1,0 +1,7 @@
+# Bad Data
+# Issue: The patrol boat is too close to the edge
+Battleship, 4, v, 6, 3
+Submarine, 3, v, 5, 5
+Patrol Boat, 2, h, 9, 9
+Destroyer, 3, h, 0, 2
+Carrier, 5, h, 0, 0
