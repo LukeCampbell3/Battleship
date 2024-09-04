@@ -24,12 +24,7 @@ namespace Battleship___Luke_Campbell
             Position = position;
             Direction = direction;
             Length = length;
-            Points = CalculatePoints(position, direction, length);
-            DamagedPoints = new List<Coord2D>();
-        }
 
-        private Coord2D[] CalculatePoints(Coord2D position, DirectionType direction, byte length)
-        {
             Coord2D[] points = new Coord2D[length];
             for (int i = 0; i < length; i++)
             {
@@ -38,7 +33,8 @@ namespace Battleship___Luke_Campbell
                     position.y + (direction == DirectionType.v ? i : 0)
                 );
             }
-            return points;
+
+            DamagedPoints = new List<Coord2D>();
         }
 
         public bool CheckHit(Coord2D Point)
