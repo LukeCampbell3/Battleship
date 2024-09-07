@@ -6,16 +6,13 @@ namespace Battleship___Luke_Campbell
     {
         static void Main(string[] args)
         {
-            //init\
+            //init menu object so Main looks pretty
             Menu menu = new Menu();
-            //Ship[] ships;
-            List<string> descriptions = new List<string>();
 
-            //ShipFactory.TestVerifyShipString();
+            // this is my loop that takes user's filepaths
+            menu.ShipInit();
 
-            // creates ships based on file path and non-file path inputs
-            menu.ShipInit(descriptions);
-
+            // this is the main game logic for attacking or checking ship status
             menu.MainLoop();
 
         }

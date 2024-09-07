@@ -12,12 +12,19 @@ namespace Battleship___Luke_Campbell
 {
     public static class ShipFactory
     {
+        /// <summary>
+        /// regex that matches ship's type, startign coords ( x,y ), direction ( v,h ), length (any positive value)
+        /// </summary>
         private static readonly Regex ShipRegex = new Regex(
             @"^(Carrier|Battleship|Destroyer|Submarine|Patrol\sBoat)\s(\d+),(\d+)\s(h|v)\s(\d+)$",
             RegexOptions.Compiled
         );
 
-
+        /// <summary>
+        /// This matches the ship's data from the file to the regex and checks if it is legit
+        /// </summary>
+        /// <param name="description">Ship's row data from the .txt file</param>
+        /// <returns>Bool whether the row data is good or bad</returns>
         public static bool VerifyShipString(string description)
         {
             // Debugging output
@@ -33,7 +40,7 @@ namespace Battleship___Luke_Campbell
                 return false;
             }
 
-            // Extract the matched groups
+            // set the matched groups
             string shipType = match.Groups[1].Value;
             int x = int.Parse(match.Groups[2].Value);
             int y = int.Parse(match.Groups[3].Value);
@@ -43,7 +50,7 @@ namespace Battleship___Luke_Campbell
             // Debugging output
             Console.WriteLine($"Parsed Values: Type={shipType}, x={x}, y={y}, direction={direction}, length={length}");
 
-            // Check if the ship's length is valid (ships longer than 5 should not exist)
+            // Check if the ship's length is valid (ships longer than 5 or shorter than 1 should not exist)
             if (length < 1 || length > 5)
             {
                 Console.WriteLine("Invalid length.");
@@ -59,6 +66,7 @@ namespace Battleship___Luke_Campbell
                     return false;
                 }
             }
+            // check if the ship stays in the grid vertically
             else if (direction == "v")
             {
                 if (y < 0 || y + length - 1 >= 10 || x < 0 || x >= 10)
@@ -67,6 +75,7 @@ namespace Battleship___Luke_Campbell
                     return false;
                 }
             }
+            // catches the ships that do not have a valid direction
             else
             {
                 Console.WriteLine("Invalid direction.");
@@ -78,6 +87,14 @@ namespace Battleship___Luke_Campbell
             return true;
         }
 
+        /// <summary>
+        /// Takes the Ship's row from the file and if its verified then gets created using the ship's type.
+        /// Then matching that to the appropriate constructor
+        /// </summary>
+        /// <param name="description">Ship's row data from the parsed .txt file</param>
+        /// <returns>Ship object as long as it is verified</returns>
+        /// <exception cref="FormatException">Ship did not get verified by <see cref="VerifyShipString(string)"/></exception>
+        /// <exception cref="ArgumentException">Invalid ship type</exception>
         public static Ship ParseShipString(string description)
         {
             Console.WriteLine($"Parsing ship: {description}");
@@ -118,6 +135,11 @@ namespace Battleship___Luke_Campbell
             }
         }
 
+        /// <summary>
+        /// Reads the file path and creates descriptions based on each row containing ship data
+        /// </summary>
+        /// <param name="filePath">string of the .txt files</param>
+        /// <returns>array of ships containing each ship's row data which is verified and parsed first</returns>
         public static Ship[] ParseShipFile(string filePath)
         {
             List<Ship> ships = new List<Ship>();
@@ -125,11 +147,13 @@ namespace Battleship___Luke_Campbell
             using (var reader = new StreamReader(filePath))
             {
                 string line;
-                while ((line = reader.ReadLine()) != null) // Read each line from the file
+                // Read each line from the file
+                while ((line = reader.ReadLine()) != null) 
                 {
-                    line = line.Trim(); // Remove leading/trailing whitespace
+                    // Remove leading/trailing whitespace
+                    line = line.Trim(); 
 
-                    // Skip empty lines or comments
+                    // Skips lines that start with "#"
                     if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
                     {
                         continue;
@@ -146,6 +170,7 @@ namespace Battleship___Luke_Campbell
                             throw new FormatException($"Invalid format: {line}");
                         }
 
+                        // sets the matched groups
                         string shipType = parts[0].Trim();
                         int length = int.Parse(parts[1].Trim());
                         string direction = parts[2].Trim();
@@ -167,6 +192,8 @@ namespace Battleship___Luke_Campbell
                 }
             }
 
+            // this makes sure the correct amount of ships get added, dynamically. 
+            // then parsed to an array because it will not be changing
             return ships.ToArray();
         }
     }

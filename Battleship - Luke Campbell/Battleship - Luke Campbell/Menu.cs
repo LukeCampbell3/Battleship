@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CsvHelper.Configuration.Attributes;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,49 +14,34 @@ namespace Battleship___Luke_Campbell
     {
         public Ship[] ships;
 
-        public Ship[] ShipInit(List<string> descriptions)
+        /// <summary>
+        /// initializes file input and parses the file to create ships
+        /// </summary>
+        /// <returns>array of ships that have been created</returns>
+        public Ship[] ShipInit()
         {
-            while (true)  // Add a loop to ensure valid input
+            while (true) // Keep asking until we get a valid input
             {
-                Console.WriteLine("Do you have a .csv of pre-made ships (Y/N)?");
-                string fileInput = Console.ReadLine();
+                Console.WriteLine("Please enter the file path to your .csv which contains your ships:");
+                string filepath = Console.ReadLine();
 
-                if (fileInput.ToLower() == "y")
+                ships = ShipFactory.ParseShipFile(filepath); // Try to parse the file
+
+                if (ships != null && ships.Length > 0) // Check if the parsing was successful
                 {
-                    Console.WriteLine("Please enter the file path to your .csv which contains your ships:");
-                    string filepath = Console.ReadLine();
-
-                    ships = ShipFactory.ParseShipFile(filepath); // Assign directly to the class-level array
-                    return ships; // Return ships after successful CSV parsing
-                }
-                else if (fileInput.ToLower() == "n")
-                {
-                    Console.WriteLine("Please input your ships in the following format\n" +
-                                      "\t'ship type' 'starting coord (x,y)' 'h (horizontal) / v (vertical)' 'health (5)'");
-
-                    for (int i = 0; i < 5; i++)
-                    {
-                        string description = Console.ReadLine();
-                        descriptions.Add(description);
-                    }
-
-                    foreach (string description in descriptions)
-                    {
-                        Ship ship = ShipFactory.ParseShipString(description);
-                        ships.Append(ship);
-                    }
-
-                    return ships; // Return ships after manual input
+                    return ships; // Return the valid ships
                 }
                 else
                 {
-                    Console.WriteLine("Invalid choice. Please select 'Y' for yes or 'N' for no.");
-                    // Loop continues, allowing the user to try again
+                    Console.WriteLine("Invalid file or no ships found. Please try again."); // Error message
                 }
             }
         }
 
-
+        /// <summary>
+        /// this is the main game loop
+        /// this method handles attack input along with status checking
+        /// </summary>
         public void MainLoop()
         {
             bool playAgain = true;
@@ -80,14 +67,15 @@ namespace Battleship___Luke_Campbell
                         case 1:
                             Console.WriteLine("You chose ATTACK\n\tWhere would you like to attack? [please use (x,y) format :) ]");
 
+                            /// takes the user inputted coords and passes them to <see cref="GetCoordFromUser"/>
                             attack = GetCoordFromUser();
+                            // passes the coord to this method that checks if it hit a ship
                             Userattack(attack, ships);
 
                             break;
                         case 2:
-                            //dont get info 
-                            //let the user access previous attacks to "strategize"
                             Console.WriteLine("Here is the status of your ships:");
+                            // gets info for each CREATED ship
                             foreach (var ship in ships)
                             {
                                 Console.WriteLine(ship.GetInfo());
@@ -112,39 +100,65 @@ namespace Battleship___Luke_Campbell
             Console.WriteLine("Thank you for playing!");
         }
 
-
+        /// <summary>
+        /// this method handles the user's attacks
+        /// </summary>
+        /// <param name="attack"><see cref="Coord2D"/>this is a coordinate point the user inputs</param>
+        /// <param name="ships">this is the list of ships that need checked</param>
         public void Userattack(Coord2D attack, Ship[] ships)
         {
+            bool hit = false; // Track if a hit has occurred
+
             foreach (Ship s in ships)
             {
-                s.TakeDamage(attack);
-
-                if (s.IsDead()) // Check if the ship is dead after taking damage
+                if (s.IsDead()) // Skip checking a ship if it's already dead
                 {
-                    Console.WriteLine("You have taken out a ship!");
+                    continue;
                 }
-                break; // Only hit one ship per attack
+
+                if (s.CheckHit(attack)) // Only proceed if the attack hit this ship
+                {
+                    s.TakeDamage(attack);
+                    hit = true;
+
+                    if (s.IsDead()) // Check if the ship is dead after taking damage
+                    {
+                        Console.WriteLine("You have taken out a ship!");
+                    }
+                }
+            }
+
+            if (!hit) // If no ship was hit, display a message
+            {
+                Console.WriteLine("You missed...");
             }
         }
 
 
+        /// <summary>
+        /// This takes the user's inputted coordinates that are attacks
+        /// </summary>
+        /// <returns>returns a coord2d that is to be used to check if the attack hit a ship</returns>
         public static Coord2D GetCoordFromUser()
         {
-            while (true) // Loop until valid input is provided
+            while (true) // Keeps this method happy
             {
                 try
                 {
                     Console.Write("Enter attack coordinates (x,y): ");
                     string input = Console.ReadLine();
 
-                    // Step 2: Parse the Input
+                    // parse user input
                     string[] parts = input.Split(',');
 
+                    // user input handling
+                    //if the user inputs more or less than a 2d coord
                     if (parts.Length != 2)
                     {
                         throw new FormatException("Command not recognized. Please use the format 'x,y'.");
                     }
 
+                    // makes sure the parsed x , y coordinates are set
                     int x = int.Parse(parts[0]);
                     int y = int.Parse(parts[1]);
 
@@ -154,9 +168,10 @@ namespace Battleship___Luke_Campbell
                         throw new ArgumentOutOfRangeException("Coordinates must be within the range 0-9.");
                     }
 
-                    // Step 3: Convert to Coord2D
+                    // converts x , y to coord2d
                     return new Coord2D(x, y);
                 }
+                //yay exceptions
                 catch (FormatException ex)
                 {
                     Console.WriteLine($"Error: {ex.Message}");
@@ -169,8 +184,8 @@ namespace Battleship___Luke_Campbell
                 {
                     Console.WriteLine($"Unexpected error: {ex.Message}");
                 }
-
-                Console.WriteLine("Please try again."); // Prompt user to try again
+                // let user try to input again
+                Console.WriteLine("Please try again."); 
             }
         }
 
