@@ -8,9 +8,10 @@ namespace Battleship___Luke_Campbell
 {
     public enum DirectionType
     {
-        //Vertical,
-        //Horizontal
-        h,
-        v
+        /// <summary>
+        /// Horizontal ( h ), Vertical ( v )
+        /// </summary>
+        h, 
+        v 
     }
 }

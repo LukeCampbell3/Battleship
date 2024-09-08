@@ -84,17 +84,20 @@ namespace Battleship___Luke_Campbell
                 {
                     if (DamagedPoints.Contains(Points[i]))
                     {
-                        Console.WriteLine("You have already hit this coordinate.");
-                        return true; // Still consider it a hit
+                        Console.WriteLine("You have already attacked this coordinate.");
+                        return false; // Return false since it's already been hit, no new hit registered
                     }
 
                     DamagedPoints.Add(Points[i]); // Add the damaged point to the list
-                    return true; // Return true since a hit was detected
+                    Console.WriteLine($"You hit a ship at ({Point.x}, {Point.y})");
+                    return true; // Return true since a new hit was registered
                 }
             }
 
-            return false; // If no hit was found, return false
+            // If no hit was found, return false
+            return false;
         }
+
 
         /// <summary>
         /// This outputs the result from <see cref="CheckHit(Coord2D)"/> to the user

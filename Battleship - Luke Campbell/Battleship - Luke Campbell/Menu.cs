@@ -108,6 +108,7 @@ namespace Battleship___Luke_Campbell
         public void Userattack(Coord2D attack, Ship[] ships)
         {
             bool hit = false; // Track if a hit has occurred
+            bool alreadyHit = false; // Track if the coordinate was already attacked
 
             foreach (Ship s in ships)
             {
@@ -118,7 +119,6 @@ namespace Battleship___Luke_Campbell
 
                 if (s.CheckHit(attack)) // Only proceed if the attack hit this ship
                 {
-                    s.TakeDamage(attack);
                     hit = true;
 
                     if (s.IsDead()) // Check if the ship is dead after taking damage
@@ -126,13 +126,18 @@ namespace Battleship___Luke_Campbell
                         Console.WriteLine("You have taken out a ship!");
                     }
                 }
+                else if (s.DamagedPoints.Contains(attack))
+                {
+                    alreadyHit = true; // Mark as already hit
+                }
             }
 
-            if (!hit) // If no ship was hit, display a message
+            if (!hit && !alreadyHit) // If no ship was hit and it was not a repeated attack
             {
                 Console.WriteLine("You missed...");
             }
         }
+
 
 
         /// <summary>
@@ -141,7 +146,12 @@ namespace Battleship___Luke_Campbell
         /// <returns>returns a coord2d that is to be used to check if the attack hit a ship</returns>
         public static Coord2D GetCoordFromUser()
         {
-            while (true) // Keeps this method happy
+            // uses bool logic so users can stay inside the loop
+            bool isValidInput = false;
+            // creates an instance of a Coord2D so it can be set later in the loop
+            Coord2D coord = new Coord2D();  
+
+            do
             {
                 try
                 {
@@ -151,14 +161,13 @@ namespace Battleship___Luke_Campbell
                     // parse user input
                     string[] parts = input.Split(',');
 
-                    // user input handling
-                    //if the user inputs more or less than a 2d coord
+                    // Check if the input has exactly two parts
                     if (parts.Length != 2)
                     {
                         throw new FormatException("Command not recognized. Please use the format 'x,y'.");
                     }
 
-                    // makes sure the parsed x , y coordinates are set
+                    // Parse x and y coordinates
                     int x = int.Parse(parts[0]);
                     int y = int.Parse(parts[1]);
 
@@ -168,27 +177,31 @@ namespace Battleship___Luke_Campbell
                         throw new ArgumentOutOfRangeException("Coordinates must be within the range 0-9.");
                     }
 
-                    // converts x , y to coord2d
-                    return new Coord2D(x, y);
+                    // If input is valid, set isValidInput to true and return coordinates
+                    coord = new Coord2D(x, y);
+                    isValidInput = true;
                 }
-                //yay exceptions
-                catch (FormatException ex)
+                catch (FormatException ex)                          // if the input is invalid input
                 {
                     Console.WriteLine($"Error: {ex.Message}");
                 }
-                catch (ArgumentOutOfRangeException ex)
+                catch (ArgumentOutOfRangeException ex)              // if coords are outside bounds
                 {
                     Console.WriteLine($"Error: {ex.Message}");
                 }
-                catch (Exception ex)
+                catch (Exception ex)                               // if any application errors were to occur 
                 {
                     Console.WriteLine($"Unexpected error: {ex.Message}");
                 }
-                // let user try to input again
-                Console.WriteLine("Please try again."); 
+
+                if (!isValidInput)                                 // a catch all output
+                {
+                    Console.WriteLine("Please try again.");
+                }
             }
+            while (!isValidInput);                                 // Keeps loop going even though input is invalid
+
+            return coord;                                          // returns the created Coord2D
         }
-
-
     }
 }

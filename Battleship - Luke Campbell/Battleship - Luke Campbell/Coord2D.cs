@@ -19,8 +19,8 @@ namespace Battleship___Luke_Campbell
         /// <param name="y">ship / user's y coord</param>
         public Coord2D(int x , int y)
         {
-            this.x = x;
-            this.y = y;
+            this.x = x;     // x coord
+            this.y = y;     // y coord
         }
 
     }
